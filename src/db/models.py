@@ -27,3 +27,6 @@ class Users(Base):
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
     )
+
+    def __repr__(self):
+        return f"Id: {self.id}, email: {self.email}, create at: {self.created_at}"
