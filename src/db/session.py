@@ -50,7 +50,7 @@ class Database:
 
 
 @contextmanager
-def get_db_session(db_url: str = ""):
+def get_db_session(db_url: str):
     """Context manager for safely managing database sessions."""
     db = Database(db_url)
     session = db.get_session()

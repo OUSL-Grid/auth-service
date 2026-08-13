@@ -19,7 +19,7 @@ def create_user(session: Session, payload: UserCreate) -> Users:
     new_user = Users(**user_data)
 
     session.add(new_user)
-    session.flush()
+    session.commit()
     session.refresh(new_user)
 
     return new_user
