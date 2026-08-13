@@ -6,12 +6,13 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from utils import Path
+from pathlib import Path
 
 load_dotenv()
 
 
 class Settings(BaseSettings):
+    env: str
     database_url: str
 
     model_config = SettingsConfigDict(
@@ -26,7 +27,7 @@ class AppConfig(BaseModel):
 
 def load_yaml_config_file(file: str = "config") -> AppConfig:
     config_path = (
-        Path(__file__).resolve().parent / "config" / f"{file}.yaml"
+        Path(__file__).resolve().parent.parent.parent / "config" / f"{file}.yaml"
     )
 
     with open(config_path, "r") as f:
