@@ -1,12 +1,11 @@
 import threading
+from pathlib import Path
 from typing import Optional
 
 import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from pathlib import Path
 
 load_dotenv()
 
