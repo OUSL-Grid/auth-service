@@ -1,5 +1,3 @@
-
-
 from uuid import uuid4
 
 from sqlalchemy import select
@@ -11,7 +9,7 @@ from src.db.schemas import UserCreate, UserRoleUpdate
 
 
 def create_user(session: Session, payload: UserCreate) -> Users:
-    """ Create a new user using payload """
+    """Create a new user using payload"""
     user_data = payload.model_dump()
 
     user_data["id"] = str(uuid4())
@@ -24,19 +22,19 @@ def create_user(session: Session, payload: UserCreate) -> Users:
     session.refresh(new_user)
 
     return new_user
-    
+
 
 def get_user_by_email(session: Session, email: str) -> Users:
-    """ Fetch user by email """
+    """Fetch user by email"""
     return session.execute(
         select(Users).where(Users.email == email)
     ).scalar_one_or_none()
 
+
 def get_user_by_id(session: Session, id: str) -> Users:
-    """ Fetch user by email """
-    return session.execute(
-        select(Users).where(Users.id == id)
-    ).scalar_one_or_none()
+    """Fetch user by email"""
+    return session.execute(select(Users).where(Users.id == id)).scalar_one_or_none()
+
 
 def update_role(session: Session, payload: UserRoleUpdate) -> Users:
     user = session.get(Users, payload.id)
@@ -48,12 +46,13 @@ def update_role(session: Session, payload: UserRoleUpdate) -> Users:
     for key, value in update_data.items():
         setattr(user, key, value)
 
-    session.commit()     
+    session.commit()
     session.refresh(user)
     return user
 
+
 def delete_user_by_id(session: Session, id: str) -> bool:
-    """ delete user from database """
+    """delete user from database"""
     user = session.get(Users, id)
     if not user:
         return False
