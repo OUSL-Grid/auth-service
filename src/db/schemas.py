@@ -7,5 +7,6 @@ class UserCreate(BaseModel):
     password: str
     verified_domain: str
 
-class UserUpdate(BaseModel):
-    ...
+class UserRoleUpdate(BaseModel):
+    id: str
+    role: str
