@@ -1,9 +1,10 @@
 from uuid import uuid1
 
-from src.db.schemas import UserCreate
-from src.utils import ConfigManager
-from src.db.session import Database
 from src.db.repository import create_user
+from src.db.schemas import UserCreate
+from src.db.session import Database
+from src.utils import ConfigManager
+
 
 def main():
     cfg_mgr = ConfigManager()

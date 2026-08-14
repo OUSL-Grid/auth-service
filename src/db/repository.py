@@ -39,17 +39,16 @@ def get_user_by_id(session: Session, id: str) -> Users:
     ).scalar_one_or_none()
 
 def update_role(session: Session, payload: UserRoleUpdate) -> Users:
-    """ Update user """
-    user = session.execute(
-        select(Users).where(Users.id == id)
-    ).scalar_one_or_none()
+    user = session.get(Users, payload.id)
+    if not user:
+        return None
 
     update_data = payload.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
         setattr(user, key, value)
 
-    session.commit()
+    session.commit()     
     session.refresh(user)
     return user
 
