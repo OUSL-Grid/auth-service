@@ -13,7 +13,7 @@ class Database:
     engine: Engine
     session_factory: sessionmaker
 
-    def __new__(cls, db_url: str = "") -> "Database":
+    def __new__(cls, db_url: str) -> "Database":
         # Thread-safe Singleton initialization
         if cls._instance is None:
             with cls._lock:
