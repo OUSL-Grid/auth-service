@@ -9,7 +9,7 @@ from sqlalchemy import engine_from_config, pool
 load_dotenv()
 
 from src.db.models import Base
-from src.utils import ConfigManager
+from src.core import ConfigManager
 
 cfg_mgr = ConfigManager()
 db_url = cfg_mgr.settings.database_url

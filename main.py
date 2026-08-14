@@ -3,7 +3,7 @@ from uuid import uuid1
 from src.db.repository import create_user
 from src.db.schemas import UserCreate
 from src.db.session import Database
-from src.utils import ConfigManager
+from src.core import ConfigManager
 
 
 def main():

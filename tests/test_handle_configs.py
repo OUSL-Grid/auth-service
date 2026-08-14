@@ -1,5 +1,5 @@
 
-from src.utils import ConfigManager
+from src.core import ConfigManager
 
 
 def test_app_config_manager_success():
