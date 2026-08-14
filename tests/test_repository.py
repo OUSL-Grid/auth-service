@@ -11,11 +11,8 @@ from src.db.repository import (
     update_role,
 )
 from src.db.schemas import UserCreate, UserRoleUpdate
-from src.db.session import Database
-from src.utils.handle_configs import ConfigManager
 
-cfg_mgr = ConfigManager()
-db = Database(db_url=cfg_mgr.settings.database_url)
+
 
 test_id = "024b1bb4-154a-489e-890f-a2ec953e1b91"
 test_email = "manual.user@example.com"
