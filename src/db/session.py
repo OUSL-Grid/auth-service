@@ -1,20 +1,23 @@
 import threading
-from contextlib import contextmanager
-from typing import Optional
+from contextlib import asynccontextmanager
+from typing import Optional, AsyncGenerator
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncEngine, AsyncSession
+
 
 class Database:
     _instance: Optional["Database"] = None
     _lock: threading.Lock = threading.Lock()
-    engine: Engine
-    session_factory: sessionmaker
+    engine: AsyncEngine
+    session_factory: async_sessionmaker[AsyncGenerator]
 
-    def __new__(cls, db_url: str = "") -> "Database":
-        # Thread-safe Singleton initialization
+    @classmethod
+    async def get_instance(cls, db_url: str) -> "Database":
+        # Async thread-safe Singleton initialization
         if cls._instance is None:
             with cls._lock:
                 # Double-check locking pattern
@@ -26,39 +29,40 @@ class Database:
 
                     instance = super().__new__(cls)
 
-                    print("Initializing SQLAlchemy Engine and SessionFactory...")
-                    instance.engine = create_engine(
+                    print("Initializing  Async SQLAlchemy Engine and SessionFactory...")
+                    instance.engine = create_async_engine(
                         db_url,
                         pool_size=5,
                         max_overflow=10,
                         echo=False
                     )
 
-                    instance.session_factory = sessionmaker(
+                    instance.session_factory = async_sessionmaker(
                         bind=instance.engine,
                         autoflush=False,
-                        expire_on_commit=False
+                        expire_on_commit=False,
+                        class_ = AsyncSession
                     )
 
                     cls._instance = instance
 
         return cls._instance
 
-    def get_session(self) -> Session:
-        """Creates a new session from the session factory."""
+    def get_session(self) -> AsyncSession:
+        """Creates a new AsyncSession from the session factory."""
         return self.session_factory()
 
 
-@contextmanager
-def get_db_session(db_url: str):
-    """Context manager for safely managing database sessions."""
-    db = Database(db_url)
+@asynccontextmanager
+async def get_db_session(db_url: str) -> AsyncGenerator[AsyncSession, None]:
+    """ Async context manager for safely managing database sessions."""
+    db = await Database.get_instance(db_url)
     session = db.get_session()
     try:
         yield session
-        session.commit()
+        await session.commit()
     except Exception:
-        session.rollback()
+        await session.rollback()
         raise
     finally:
-        session.close()
+        await session.close()

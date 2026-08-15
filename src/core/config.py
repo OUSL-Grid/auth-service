@@ -12,7 +12,8 @@ load_dotenv()
 
 class Settings(BaseSettings):
     env: str
-    database_url: str
+    database_url_sync: str
+    database_url_async: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
