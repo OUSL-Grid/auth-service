@@ -8,11 +8,11 @@ from sqlalchemy import engine_from_config, pool
 
 load_dotenv()
 
+from src.core import ConfigManager
 from src.db.models import Base
-from src.utils import ConfigManager
 
 cfg_mgr = ConfigManager()
-db_url = cfg_mgr.settings.database_url
+db_url = cfg_mgr.settings.database_url_sync
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

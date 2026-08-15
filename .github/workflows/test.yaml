@@ -1,10 +1,10 @@
-name: Tests-1-design-users-table-schema
+name: Tests - user and session repo functionality
 
 on:
   push:
-    branches: [main, develop, 1-design-users-table-schema]
+    branches: [main, develop, 2-designing-sessions-table-for-refresh-tokens]
   pull_request:
-    branches: [main, develop, 1-design-users-table-schema]
+    branches: [main, develop]
 
 jobs:
   test:
@@ -29,5 +29,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Run tests
-        run: uv run pytest tests/test_repository.py
+      - name: Run tests user repo
+        run: uv run pytest tests/test_user_repository.py
+
+      - name: Run tests session repo
+        run: uv run pytest tests/test_session_repository.py 

@@ -1,27 +1,15 @@
-from uuid import uuid1
+import asyncio
 
-from src.db.repository import create_user
-from src.db.schemas import UserCreate
-from src.db.session import Database
-from src.utils import ConfigManager
+from src.db.session import get_db_session
 
+# Ensure URL uses an async driver dialect like postgresql+asyncpg://
+DB_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/mydb"
 
-def main():
-    cfg_mgr = ConfigManager()
-    db = Database(db_url=cfg_mgr.settings.database_url)
-    print(cfg_mgr.app_config.name)
-    print(cfg_mgr.settings.database_url)
-
-    for i in range(10):
-        payload = UserCreate(
-            email=f"test{i}@gmail.com",
-            password=str(uuid1())[:10],
-            verified_domain="domain1"
-        )
-
-        user = create_user(db.get_session(), payload)
-        print(user)
-
+async def main():
+    async with get_db_session(DB_URL) as session:
+        # Example query execution
+        # result = await session.execute(select(...))
+        print("Session active:", session.is_active)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
