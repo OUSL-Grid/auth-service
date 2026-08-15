@@ -1,11 +1,15 @@
+from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import select, update, delete
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models import Users as UserModel
 from src.db.schemas import UserCreate, UserRoleUpdate
-from sqlalchemy.ext.asyncio import AsyncSession
+
+
+class UserNotFoundError(Exception): ...
+
 
 class UserRepository:
     def __init__(self, db: AsyncSession):
@@ -14,50 +18,47 @@ class UserRepository:
     async def create_user(self, payload: UserCreate) -> UserModel:
         """Create a new user using payload"""
         user_data = payload.model_dump()
-
         user_data["id"] = str(uuid4())
 
-        new_user = UserModel(**user_data)
+        new_user = UserModel(**user_data)  # <-- was UserCreate(**user_data)
 
         self.db.add(new_user)
-        self.db.commit()
-        self.db.refresh(new_user)
+        await self.db.commit()
+        await self.db.refresh(new_user)
 
         return new_user
 
-
-    def get_user_by_email(self, email: str) -> UserModel:
+    async def get_user_by_email(self, email: str) -> Optional[UserModel]:
         """Fetch user by email"""
-        return self.db.execute(
-            select(UserCreate).where(UserCreate.email == email)
-        ).scalar_one_or_none()
-
-
-    def get_user_by_id(self, id: str) -> UserModel:
-        """Fetch user by email"""
-        return self.db.execute(select(UserModel).where(UserModel.id == id)).scalar_one_or_none()
-
-
-    def update_role(session: Session, payload: UserRoleUpdate) -> UserModel:
-        user = session.get(UserModel, payload.id)
-        if not user:
-            return None
-
-        update_data = payload.model_dump(exclude_unset=True)
-
-        for key, value in update_data.items():
-            setattr(user, key, value)
-
-        session.commit()
-        session.refresh(user)
+        result = await self.db.execute(
+            select(UserModel).where(UserModel.email == email)  # <-- was UserCreate
+        )
+        user = result.scalar_one_or_none()
+        if user is None:
+            raise UserNotFoundError(f"User with email {email} not found")
         return user
 
+    async def get_user_by_id(self, id: str) -> UserModel:
+        """Fetch user by id"""
+        result = await self.db.execute(  # <-- was missing await
+            select(UserModel).where(UserModel.id == id)
+        )
+        user = result.scalar_one_or_none()
+        if user is None:
+            raise UserNotFoundError(f"User with id: {id} not found")
+        return user
 
-    def delete_user_by_id(session: Session, id: str) -> bool:
-        """delete user from database"""
-        user = session.get(UserModel, id)
-        if not user:
-            return False
-        session.delete(user)
-        session.commit()
-        return True
+    async def update_role(self, payload: UserRoleUpdate) -> UserModel:
+        await self.db.execute(
+            update(UserModel).where(UserModel.id == payload.id).values(role=payload.role)
+        )
+        await self.db.commit()
+        return await self.get_user_by_id(payload.id)  # <-- now actually returns something
+
+    async def delete_user_by_id(self, id: str) -> bool:
+        """Delete user from database"""
+        result = await self.db.execute(
+            delete(UserModel).where(UserModel.id == id)  # <-- was undefined user_id
+        )
+        await self.db.commit()
+        return result.rowcount > 0  # <-- now actually returns bool
