@@ -29,5 +29,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Run tests
-        run: uv run pytest tests/test_repository.py
+      - name: Run tests user repo
+        run: uv run pytest tests/test_user_repository.py
+
+      - name: Run tests session repo
+        run: uv run pytest tests/test_session_repository.py 
