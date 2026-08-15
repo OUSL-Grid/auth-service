@@ -34,3 +34,9 @@ class SessionRead(BaseModel):
     revoked_at: datetime | None
     user_agent: str | None
     ip_address: str | None
+
+class OAuthIdentityCreate(BaseModel):
+    user_id: str
+    provider: str
+    provider_user_id: str
+    access_token_enc: str | None = None
