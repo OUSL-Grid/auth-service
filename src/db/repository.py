@@ -13,7 +13,6 @@ def create_user(session: Session, payload: UserCreate) -> Users:
     user_data = payload.model_dump()
 
     user_data["id"] = str(uuid4())
-    user_data["password"] = hash_password(user_data["password"])
 
     new_user = Users(**user_data)
 

@@ -8,8 +8,8 @@ from sqlalchemy import engine_from_config, pool
 
 load_dotenv()
 
-from src.db.models import Base
 from src.core import ConfigManager
+from src.db.models import Base
 
 cfg_mgr = ConfigManager()
 db_url = cfg_mgr.settings.database_url_sync

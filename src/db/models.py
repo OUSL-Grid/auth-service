@@ -1,6 +1,4 @@
-from datetime import UTC, datetime, timezone
-from multiprocessing.pool import INIT
-from typing import List, Optional
+from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -31,7 +29,7 @@ class Users(Base):
 
     # --- RELATIONSHIP ---
     # One user can have many sessions. Deleting a user cascades to delete their sessions.
-    sessions: Mapped[List["UserSessions"]] = relationship(
+    sessions: Mapped[list["UserSessions"]] = relationship(
         "UserSessions",
         back_populates="user",
         cascade="all, delete-orphan",
@@ -52,12 +50,12 @@ class UserSessions(Base):
         nullable=False,
     )
     issued_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.now(timezone.utc)
+        nullable=False, default=lambda: datetime.now(UTC)
     )
     expires_at: Mapped[datetime] = mapped_column(nullable=False)
-    revoked_at: Mapped[Optional[datetime]] = mapped_column(default=None, nullable=True)
-    user_agent: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    ip_address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # --- RELATIONSHIP ---
     # Many sessions belong to one user.

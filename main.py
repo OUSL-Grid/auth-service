@@ -1,5 +1,4 @@
 import asyncio
-from sqlalchemy import select
 
 from src.db.session import get_db_session
 

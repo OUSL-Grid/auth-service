@@ -12,8 +12,6 @@ from src.db.repository import (
 )
 from src.db.schemas import UserCreate, UserRoleUpdate
 
-
-
 test_id = "024b1bb4-154a-489e-890f-a2ec953e1b91"
 test_email = "manual.user@example.com"
 
@@ -39,12 +37,11 @@ def db_session():
 def test_user_create_success(db_session: Session):
     payload = UserCreate(
         email=test_email, verified_domain="example.com",
-        role="student", trust_score=3.0, password="pw123", active=True,
+        role="student", trust_score=3.0, active=True,
     )
     user = create_user(db_session, payload)
     assert user.id is not None
     assert user.email == test_email
-    assert user.password != "pw123"  # should be hashed
 
     
 
@@ -59,7 +56,6 @@ def test_get_user_by_email_success(db_session: Session):
             verified_domain="example.com",
             role="admin",
             trust_score=4.5,
-            password="super-secret-password",
             active=True,
         )
     
@@ -94,7 +90,6 @@ def test_get_user_by_id_success(db_session: Session):
                 verified_domain="example.com",
                 role="admin",
                 trust_score=4.5,
-                password="super-secret-password",
                 active=True,
             )
         
@@ -129,7 +124,6 @@ def test_update_role_success(db_session: Session):
                     verified_domain="example.com",
                     role="admin",
                     trust_score=4.5,
-                    password="super-secret-password",
                     active=True,
                 )
             
@@ -151,7 +145,7 @@ def test_update_role_success(db_session: Session):
 def test_delete_user_by_id(db_session: Session):
     manual_user = Users(
         id=test_id, email=test_email, verified_domain="example.com",
-        role="admin", trust_score=4.5, password="secret", active=True,
+        role="admin", trust_score=4.5, active=True,
     )
     db_session.add(manual_user)
     db_session.commit()
