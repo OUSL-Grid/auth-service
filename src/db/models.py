@@ -1,65 +1,94 @@
+
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Text
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
-class Base(DeclarativeBase): ...
+class Base(DeclarativeBase):
+    ...
 
 
 class Users(Base):
     __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
-    email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    verified_domain: Mapped[str] = mapped_column(Text, nullable=False)
-    role: Mapped[str] = mapped_column(Text, nullable=False, default="student")
-    trust_score: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
-    # password: Mapped[str] = mapped_column(Text, nullable=False) # todo: remove the password 
-    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    email: Mapped[str] = mapped_column(Text, unique=True)
+    verified_domain: Mapped[str]
+    role: Mapped[str] = mapped_column(default="student")
+    trust_score: Mapped[float] = mapped_column(default=1.0)
+    active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=lambda: datetime.now(UTC)
+        default=lambda: datetime.now(UTC)
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
     )
 
-    # --- RELATIONSHIP ---
-    # One user can have many sessions. Deleting a user cascades to delete their sessions.
+    # --- RELATIONSHIPS ---
     sessions: Mapped[list["UserSessions"]] = relationship(
         "UserSessions",
         back_populates="user",
         cascade="all, delete-orphan",
     )
 
-    def __repr__(self):
-        return f"Id: {self.id}, email: {self.email}, create at: {self.created_at}"
+    oauth_identities: Mapped[list["OAuthIdentity"]] = relationship(
+        "OAuthIdentity",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    def __repr__(self) -> str:
+        return f"<Users id={self.id} email={self.email}>"
 
 
 class UserSessions(Base):
     __tablename__ = "user_sessions"
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
-    user_id: Mapped[str] = mapped_column(Text, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    refresh_token_hash: Mapped[str] = mapped_column(
-        Text,
-        unique=True,
-        nullable=False,
+    user_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
+    refresh_token_hash: Mapped[str] = mapped_column(Text, unique=True)
     issued_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.now(UTC)
+        default=lambda: datetime.now(UTC)
     )
-    expires_at: Mapped[datetime] = mapped_column(nullable=False)
-    revoked_at: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
-    user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
-    ip_address: Mapped[str | None] = mapped_column(Text, nullable=True)
+    expires_at: Mapped[datetime]
+    revoked_at: Mapped[datetime | None] = mapped_column(default=None)
+    user_agent: Mapped[str | None]
+    ip_address: Mapped[str | None]
 
     # --- RELATIONSHIP ---
-    # Many sessions belong to one user.
     user: Mapped["Users"] = relationship("Users", back_populates="sessions")
 
-    def __repr__(self):
-        return f"Id: {self.id}, user id: {self.user_id}, issued at: {self.issued_at}"
+    def __repr__(self) -> str:
+        return f"<UserSessions id={self.id} user_id={self.user_id}>"
+
+
+class OAuthIdentity(Base):
+    __tablename__ = "oauth_identities"
+
+    id: Mapped[str] = mapped_column(Text, primary_key=True)
+    user_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    provider: Mapped[str]
+    provider_user_id: Mapped[str]
+    access_token_enc: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(UTC)
+    )
+
+    # --- RELATIONSHIP ---
+    user: Mapped["Users"] = relationship(
+        "Users", back_populates="oauth_identities"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_user_id", name="uq_provider_user"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<OAuthIdentity id={self.id} provider={self.provider}>"
+
