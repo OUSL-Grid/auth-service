@@ -34,3 +34,6 @@ jobs:
 
       - name: Run tests session repo
         run: uv run pytest tests/test_session_repository.py 
+
+      - name: Run tests oauth identity repo
+        run: uv run pytest tests/test_oauth_repository.py 
