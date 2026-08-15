@@ -17,7 +17,7 @@ class Users(Base):
     verified_domain: Mapped[str] = mapped_column(Text, nullable=False)
     role: Mapped[str] = mapped_column(Text, nullable=False, default="student")
     trust_score: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
-    password: Mapped[str] = mapped_column(Text, nullable=False)
+    # password: Mapped[str] = mapped_column(Text, nullable=False) # todo: remove the password 
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=lambda: datetime.now(UTC)
