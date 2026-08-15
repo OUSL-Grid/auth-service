@@ -1,14 +1,11 @@
-from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.exceptions import UserNotFoundError
 from src.db.models import Users as UserModel
 from src.db.schemas import UserCreate, UserRoleUpdate
-
-
-class UserNotFoundError(Exception): ...
 
 
 class UserRepository:
@@ -28,7 +25,7 @@ class UserRepository:
 
         return new_user
 
-    async def get_user_by_email(self, email: str) -> Optional[UserModel]:
+    async def get_user_by_email(self, email: str) -> UserModel | None:
         """Fetch user by email"""
         result = await self.db.execute(
             select(UserModel).where(UserModel.email == email)  # <-- was UserCreate

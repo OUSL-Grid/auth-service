@@ -1,11 +1,11 @@
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from src.db.models import Base, Users
-from src.db.repository import UserRepository, UserNotFoundError
 from src.db.schemas import UserCreate, UserRoleUpdate
+from src.db.user_repository import UserNotFoundError, UserRepository
 
 test_id = "024b1bb4-154a-489e-890f-a2ec953e1b91"
 test_email = "manual.user@example.com"

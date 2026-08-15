@@ -1,10 +1,10 @@
-name: Tests-1-design-users-table-schema
+name: Tests - user and session repo functionality
 
 on:
   push:
-    branches: [main, develop, 1-design-users-table-schema]
+    branches: [main, develop, 2-designing-sessions-table-for-refresh-tokens]
   pull_request:
-    branches: [main, develop, 1-design-users-table-schema]
+    branches: [main, develop]
 
 jobs:
   test:
