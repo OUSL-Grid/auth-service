@@ -2,7 +2,7 @@ name: Tests - user and session repo functionality
 
 on:
   push:
-    branches: [main, develop, origin 3-design-oauth_identities-table]
+    branches: [main, develop, 3-design-oauth_identities-table]
   pull_request:
     branches: [main, develop]
 
