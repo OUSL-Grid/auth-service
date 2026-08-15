@@ -2,7 +2,7 @@ name: Tests - user and session repo functionality
 
 on:
   push:
-    branches: [main, develop, 3-design-oauth_identities-table]
+    branches: [main, develop, 4-design-otp_codes-magic_link_tokens-table]
   pull_request:
     branches: [main, develop]
 
@@ -37,3 +37,6 @@ jobs:
 
       - name: Run tests oauth identity repo
         run: uv run pytest tests/test_oauth_repository.py 
+
+      - name: Run tests otp repo
+        run: uv run pytest tests/test_otp_repository.py 
