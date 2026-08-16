@@ -1,2 +1,8 @@
 name: auth-service
 version: 0.1
+
+auth:
+  allowed_domains:
+    - ousl.lk        # your actual university domain
+    - student.ousl.lk
+  allow_edu_wildcard: false   # set true to accept any *.edu domain in addition to the list above

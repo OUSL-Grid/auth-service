@@ -2,7 +2,7 @@ name: Tests - user and session repo functionality
 
 on:
   push:
-    branches: [main, develop, 4-design-otp_codes-magic_link_tokens-table]
+    branches: [main, develop, 5-implement-domain-whitelist-config]
   pull_request:
     branches: [main, develop]
 
@@ -40,3 +40,6 @@ jobs:
 
       - name: Run tests otp repo
         run: uv run pytest tests/test_otp_repository.py 
+
+      - name: Run tests domain whitelist
+        run: uv run pytest tests/test_domain_whitelist.py 

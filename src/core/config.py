@@ -21,9 +21,14 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+class Auth(BaseModel):
+    allowed_domains: list[str]
+    allow_edu_wildcard: bool
+
 class AppConfig(BaseModel):
     name: str
     version: float
+    auth: Auth
 
 def load_yaml_config_file(file: str = "config") -> AppConfig:
     config_path = (
