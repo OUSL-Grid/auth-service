@@ -3,6 +3,7 @@
 import hashlib
 import secrets
 
+
 def generate_token() -> str:
     """ 32 raw bytes - URL safe token for the email link. """
     return secrets.token_urlsafe(32)
