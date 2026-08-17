@@ -1,5 +1,6 @@
 from src.core.exceptions import DomainNotAllowedError
 
+
 class DomainWhitelist:
 
     def __init__(self, allowed_domains: list[str], allow_edu_wildcard: bool = False):

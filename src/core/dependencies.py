@@ -4,8 +4,6 @@ from src.auth.domain_whitelist import DomainWhitelist
 from src.core.config import ConfigManager
 
 
-
-
 @lru_cache
 def get_domain_whitelist() -> DomainWhitelist:
     cfg_mgr = ConfigManager()

@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 
 import pytest
 import pytest_asyncio
@@ -6,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import StaticPool
 
 from src.core.exceptions import OAuthIdentityAlreadyLinkedError, UserNotFoundError
-from src.db.models import Base, OAuthIdentity, Users
+from src.db.models import Base, Users
 from src.db.oauth_repository import OAuthRepository
 from src.db.schemas import OAuthIdentityCreate
 
