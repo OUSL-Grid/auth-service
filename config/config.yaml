@@ -6,3 +6,7 @@ auth:
     - ousl.lk        # your actual university domain
     - student.ousl.lk
   allow_edu_wildcard: false   # set true to accept any *.edu domain in addition to the list above
+  magic_link:
+    token_expiry_minutes: 15
+    rate_limit_max_per_window: 3
+    rate_limit_window_minutes: 15
