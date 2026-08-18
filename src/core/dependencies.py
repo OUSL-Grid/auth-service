@@ -49,7 +49,7 @@ def get_magic_link_service(
         otp_repo=OTPRepository(db),
         whitelist=whitelist,
         email_client=email_client,
-        base_url=settings.base_url,  # adjust to wherever your base URL lives in config
+        base_url=settings.base_url, 
         token_expiry_minutes=app_config.auth.magic_link.token_expiry_minutes,
         rate_limit_max=app_config.auth.magic_link.rate_limit_max_per_window,
         rate_limit_window_minutes=app_config.auth.magic_link.rate_limit_window_minutes,
