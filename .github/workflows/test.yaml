@@ -2,7 +2,7 @@ name: Tests - user and session repo functionality
 
 on:
   push:
-    branches: [main, develop, 5-implement-domain-whitelist-config]
+    branches: [main, develop, 6-post-authmagic-link-endpoint]
   pull_request:
     branches: [main, develop]
 
@@ -30,16 +30,19 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run tests user repo
-        run: uv run pytest tests/test_user_repository.py
+        run: uv run pytest tests/repo/test_user_repository.py
 
       - name: Run tests session repo
-        run: uv run pytest tests/test_session_repository.py 
+        run: uv run pytest tests/repo/test_session_repository.py 
 
       - name: Run tests oauth identity repo
-        run: uv run pytest tests/test_oauth_repository.py 
+        run: uv run pytest tests/repo/test_oauth_repository.py 
 
       - name: Run tests otp repo
-        run: uv run pytest tests/test_otp_repository.py 
+        run: uv run pytest tests/repo/test_otp_repository.py 
 
       - name: Run tests domain whitelist
-        run: uv run pytest tests/test_domain_whitelist.py 
+        run: uv run pytest tests/auth/test_domain_whitelist.py 
+
+      - name: Run tests magic link
+        run: uv run pytest tests/auth/test_magic_link_service.py 
