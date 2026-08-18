@@ -1,5 +1,4 @@
-
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, Integer, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -19,11 +18,13 @@ class Users(Base):
     trust_score: Mapped[float] = mapped_column(default=1.0)
     active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(UTC)
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(UTC),
-        onupdate=lambda: datetime.now(UTC),
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # --- RELATIONSHIPS ---
@@ -58,10 +59,13 @@ class UserSessions(Base):
     )
     refresh_token_hash: Mapped[str] = mapped_column(Text, unique=True)
     issued_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(UTC)
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )
-    expires_at: Mapped[datetime]
-    revoked_at: Mapped[datetime | None] = mapped_column(default=None)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None, nullable=True
+    )
     user_agent: Mapped[str | None]
     ip_address: Mapped[str | None]
 
@@ -83,7 +87,8 @@ class OAuthIdentity(Base):
     provider_user_id: Mapped[str]
     access_token_enc: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(UTC)
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )
 
     # --- RELATIONSHIP ---
@@ -98,6 +103,7 @@ class OAuthIdentity(Base):
     def __repr__(self) -> str:
         return f"<OAuthIdentity id={self.id} provider={self.provider}>"
 
+
 class OTPCode(Base):
     __tablename__ = "otp_codes"
 
@@ -107,11 +113,15 @@ class OTPCode(Base):
     )
     code_hash: Mapped[str] = mapped_column(Text, nullable=False)
     purpose: Mapped[str] = mapped_column(Text, nullable=False)  # e.g. "magic_link", "otp"
-    expires_at: Mapped[datetime] = mapped_column(nullable=False)
-    consumed_at: Mapped[datetime | None] = mapped_column(default=None, nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    consumed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None, nullable=True
+    )
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=lambda: datetime.now(UTC)
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
 
     user: Mapped["Users"] = relationship("Users", back_populates="otp_codes")

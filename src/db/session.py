@@ -50,6 +50,17 @@ class Database:
 
         return cls._instance
 
+    @classmethod
+    async def disconnect(cls) -> None:
+        """ Close all connection in the pool and resets the singleton instance """
+        if cls._instance is not None:
+            with cls._lock:
+                if cls._instance is not None:
+                    print("Disposing Async SQLAlchemy Engine...")
+                    await cls._instance.engine.dispose()
+                    cls._instance = None
+
+
     def get_session(self) -> AsyncSession:
         """Creates a new AsyncSession from the session factory."""
         return self.session_factory()

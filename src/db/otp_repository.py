@@ -1,7 +1,7 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import (
@@ -86,3 +86,22 @@ class OTPRepository:
         )
         await self.db.commit()
         return new_attempts
+
+    async def count_recent_codes_for_user(
+            self, user_id: str, purpose: str, window_minutes: int = 15
+    ) -> int:
+        """
+        Counts codes issued to this user for this purpose within the window —
+        used for rate limiting. Doesn't care if they were consumed/expired,
+        since the point is to cap *issuance* rate, not usage.
+        """
+
+        cutoff = datetime.now(UTC) - timedelta(minutes=window_minutes)
+        result = await self.db.execute(
+            select(func.count(OTPCodeModel.id)).where(
+                OTPCodeModel.user_id == user_id,
+                OTPCodeModel.purpose == purpose,
+                OTPCodeModel.created_at >= cutoff,
+            )
+        )
+        return result.scalar_one()

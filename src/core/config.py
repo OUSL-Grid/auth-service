@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     env: str
     database_url_sync: str
     database_url_async: str
+    base_url: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -21,9 +22,15 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+class MagicLink(BaseModel):
+    token_expiry_minutes: int
+    rate_limit_max_per_window: int
+    rate_limit_window_minutes: int
+
 class Auth(BaseModel):
     allowed_domains: list[str]
     allow_edu_wildcard: bool
+    magic_link: MagicLink
 
 class AppConfig(BaseModel):
     name: str
