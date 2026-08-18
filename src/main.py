@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import ConfigManager
 from src.db.session import Database, get_db_session
-
+from src.auth.router import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -63,3 +63,5 @@ async def health(session: DbDep):
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database unreachable: {e!s}"
         )
+
+app.include_router(router=router, prefix="/auth")

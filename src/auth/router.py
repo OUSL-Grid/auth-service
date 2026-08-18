@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 
 from src.auth.service import MagicLinkService
-from src.core.dependencies import get, get_magic_link_service
+from src.core.dependencies import get_magic_link_service
 from src.core.exceptions import DomainNotAllowedError, RateLimitExceededError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -22,7 +22,7 @@ async def request_magic_link(
 ):
     try:
         await service.request_magic_link(payload.email)
-    except DomainNotAllowedError:
+    except DomainNotAllowedError as e:
         raise HTTPException(status_code=403, detail=str(e))
     except RateLimitExceededError as e:
         raise HTTPException(status_code=429, detail=str(e))
