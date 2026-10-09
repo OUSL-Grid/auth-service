@@ -12,7 +12,7 @@ from src.db.user_repository import UserRepository
 from src.email.client import ConsoleEmailClient, EmailClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
+from src.core.config import c
 
 @lru_cache
 def get_domain_whitelist() -> DomainWhitelist:
@@ -33,6 +33,25 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     # Pass empty string since singleton is already initialized in lifespan
     async with get_db_session("") as session:
         yield session
+
+@lru_cache
+def get_private_key() -> str:
+    settings = get_settings()
+    with open(settings.auth.jwt.private_key_path) as f:
+        return f.read()
+
+
+def get_token_service(db: AsyncSession = Depends(get_db)) -> TokenService:
+    jwt_cfg = get_settings().auth.jwt
+    return TokenService(
+        private_key=get_private_key(),
+        session_repo=SessionRepository(db),
+        access_ttl_minutes=jwt_cfg.access_token_expiry_minutes,
+        refresh_ttl_days=jwt_cfg.refresh_token_expiry_days,
+        issuer=jwt_cfg.issuer,
+    )
+
+
 
 
 def get_magic_link_service(

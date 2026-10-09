@@ -43,6 +43,7 @@ class OAuthIdentityCreate(BaseModel):
 
 class OTPCodeCreate(BaseModel):
     user_id: str
+    email: str
     code_hash: str
     purpose: str
     expires_at: datetime
