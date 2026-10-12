@@ -51,13 +51,14 @@ class SessionRepository:
 
         return session
 
-    async def revoke_session(self, session_id: str) -> None:
-        await self.db.execute(
+    async def revoke_session(self, session_id: str) -> bool:
+        result = await self.db.execute(
             update(SessionModel)
             .where(SessionModel.id == session_id)
             .values(revoked_at=datetime.now(UTC))
         )
         await self.db.commit()
+        return result.rowcount > 0
 
 
     async def revoke_all_for_user(self, user_id: str) -> int:
