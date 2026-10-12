@@ -6,9 +6,11 @@ from datetime import UTC, datetime, timedelta
 from pydantic import BaseModel
 
 from src.auth.magic_link import hash_token
+from src.core.exceptions import AccountDisabledError, SessionRevokedError
 from src.db.models import Users
 from src.db.schemas import SessionCreate
 from src.db.session_repository import SessionRepository
+from src.db.user_repository import UserRepository
 
 
 class TokenPair(BaseModel):
@@ -22,12 +24,14 @@ class TokenService:
         self,
         private_key: str,
         session_repo: SessionRepository,
+        user_repo: UserRepository,
         access_ttl_minutes: int = 15,
         refresh_ttl_days: int = 7,
         issuer: str = "auth-service",
     ):
         self.private_key = private_key
         self.session_repo = session_repo
+        self.user_repo = user_repo
         self.access_ttl = timedelta(minutes=access_ttl_minutes)
         self.refresh_ttl = timedelta(days=refresh_ttl_days)
         self.issuer = issuer
@@ -69,4 +73,21 @@ class TokenService:
             refresh_token=raw_refresh,
             expires_in=int(self.access_ttl.total_seconds()),
         )
-    
+
+    async def refresh(
+        self,
+        raw_refresh_token: str,
+        user_agent: str | None = None,
+        ip_address: str | None = None,
+    ) -> TokenPair:
+        session = await self.session_repo.get_session_by_hash(hash_token(raw_refresh_token))
+
+        if not await self.session_repo.revoke_session(session.id):
+            raise SessionRevokedError("Refresh token has been revoked")
+
+        user = await self.user_repo.get_user_by_id(session.user_id)
+
+        if not user.active:
+            raise AccountDisabledError("This account has been disabled")
+
+        return await self.issue_token_pair(user, user_agent, ip_address)
