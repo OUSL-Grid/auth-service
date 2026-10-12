@@ -32,10 +32,19 @@ class Auth(BaseModel):
     allow_edu_wildcard: bool
     magic_link: MagicLink
 
+class JWT(BaseModel):
+    private_key_path: str
+    public_key_path: str
+    access_token_expiry_minutes: int
+    refresh_token_expiry_days: int
+    issuer: str
+
 class AppConfig(BaseModel):
     name: str
     version: float
     auth: Auth
+    jwts: JWT
+
 
 def load_yaml_config_file(file: str = "config") -> AppConfig:
     config_path = (
@@ -63,3 +72,5 @@ class ConfigManager:
                 if cls._instance is None:
                     cls._instance = cls()
         return cls._instance
+
+

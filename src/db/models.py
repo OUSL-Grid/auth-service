@@ -109,8 +109,9 @@ class OTPCode(Base):
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
     user_id: Mapped[str] = mapped_column(
-        Text, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        Text, ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
+    email: Mapped[str] = mapped_column(Text, nullable=False, index=True)
     code_hash: Mapped[str] = mapped_column(Text, nullable=False)
     purpose: Mapped[str] = mapped_column(Text, nullable=False)  # e.g. "magic_link", "otp"
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -128,3 +129,4 @@ class OTPCode(Base):
 
     def __repr__(self):
         return f"Id: {self.id}, user_id: {self.user_id}, purpose: {self.purpose}"
+    

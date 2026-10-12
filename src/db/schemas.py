@@ -42,7 +42,8 @@ class OAuthIdentityCreate(BaseModel):
     access_token_enc: str | None = None
 
 class OTPCodeCreate(BaseModel):
-    user_id: str
+    user_id: str | None = None
+    email: str
     code_hash: str
     purpose: str
     expires_at: datetime

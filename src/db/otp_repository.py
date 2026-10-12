@@ -26,6 +26,7 @@ class OTPRepository:
         code = OTPCodeModel(
             id=str(uuid4()),
             user_id=payload.user_id,
+            email = payload.email,
             code_hash=payload.code_hash,
             purpose=payload.purpose,
             expires_at=payload.expires_at,
@@ -46,6 +47,9 @@ class OTPRepository:
         )
         code = result.scalar_one_or_none()
 
+        # *todo remove after debug
+        print("expires_at:", code.expires_at, "| now:", datetime.now(UTC))
+
         if code is None:
             raise CodeNotFoundError("Code not recognized")
         if code.consumed_at is not None:
@@ -57,13 +61,14 @@ class OTPRepository:
 
         return code
 
-    async def mark_consumed(self, code_id: str) -> None:
-        await self.db.execute(
+    async def mark_consumed(self, code_id: str) -> bool:
+        result = await self.db.execute(
             update(OTPCodeModel)
             .where(OTPCodeModel.id == code_id)
             .values(consumed_at=datetime.now(UTC))
         )
         await self.db.commit()
+        return result.rowcount > 0
 
     async def increment_attempts(self, code_id: str) -> int:
         """
@@ -87,8 +92,8 @@ class OTPRepository:
         await self.db.commit()
         return new_attempts
 
-    async def count_recent_codes_for_user(
-            self, user_id: str, purpose: str, window_minutes: int = 15
+    async def count_recent_codes_for_email(
+            self, email: str, purpose: str, window_minutes: int = 15
     ) -> int:
         """
         Counts codes issued to this user for this purpose within the window —
@@ -99,9 +104,19 @@ class OTPRepository:
         cutoff = datetime.now(UTC) - timedelta(minutes=window_minutes)
         result = await self.db.execute(
             select(func.count(OTPCodeModel.id)).where(
-                OTPCodeModel.user_id == user_id,
+                OTPCodeModel.email == email,
                 OTPCodeModel.purpose == purpose,
                 OTPCodeModel.created_at >= cutoff,
             )
         )
         return result.scalar_one()
+
+# atomic consume: two simultaneous clicks on the same link can't both win
+async def mark_consumed(self, code_id: str) -> bool:
+    result = await self.db.execute(
+        update(OTPCodeModel)
+        .where(OTPCodeModel.id == code_id, OTPCodeModel.consumed_at.is_(None))
+        .values(consumed_at=datetime.now(UTC))
+    )
+    await self.db.commit()
+    return result.rowcount > 0 

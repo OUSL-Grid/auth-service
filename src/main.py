@@ -64,4 +64,4 @@ async def health(session: DbDep):
             detail=f"Database unreachable: {e!s}"
         )
 
-app.include_router(router=router, prefix="/auth")
+app.include_router(router=router, prefix="/auth/v1")
