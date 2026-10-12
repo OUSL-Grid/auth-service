@@ -1,12 +1,19 @@
-name: auth-service
-version: 0.1
+name: "auth-service"
+version: 1.0
 
 auth:
   allowed_domains:
-    - ousl.lk        # users actual university domain
-    - student.ousl.lk
-  allow_edu_wildcard: false   # set true to accept any *.edu domain in addition to the list above
+    - "ousl.lk"
+    - "company.com"
+  allow_edu_wildcard: true
   magic_link:
     token_expiry_minutes: 15
-    rate_limit_max_per_window: 3
-    rate_limit_window_minutes: 15
+    rate_limit_max_per_window: 5
+    rate_limit_window_minutes: 60
+
+jwts:
+  private_key_path: "keys/private.pem"
+  public_key_path: "keys/public.pem"
+  access_token_expiry_minutes: 15
+  refresh_token_expiry_days: 7
+  issuer: "auth-service"

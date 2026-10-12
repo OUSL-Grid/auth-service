@@ -47,6 +47,9 @@ class OTPRepository:
         )
         code = result.scalar_one_or_none()
 
+        # *todo remove after debug
+        print("expires_at:", code.expires_at, "| now:", datetime.now(UTC))
+
         if code is None:
             raise CodeNotFoundError("Code not recognized")
         if code.consumed_at is not None:
@@ -58,13 +61,14 @@ class OTPRepository:
 
         return code
 
-    async def mark_consumed(self, code_id: str) -> None:
-        await self.db.execute(
+    async def mark_consumed(self, code_id: str) -> bool:
+        result = await self.db.execute(
             update(OTPCodeModel)
             .where(OTPCodeModel.id == code_id)
             .values(consumed_at=datetime.now(UTC))
         )
         await self.db.commit()
+        return result.rowcount > 0
 
     async def increment_attempts(self, code_id: str) -> int:
         """

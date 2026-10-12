@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 
-from src.auth.jwt import TokenPair
+from src.auth.jwt import TokenPair, TokenService
 from src.auth.magic_link import generate_token, hash_token
 from src.db.schemas import OTPCodeCreate, UserCreate
 from src.db.user_repository import UserRepository
@@ -19,6 +19,7 @@ class MagicLinkService:
             otp_repo: OTPRepository,
             whitelist: DomainWhitelist,
             email_client: EmailClient,
+            token_service: TokenService,
             base_url: str,
             token_expiry_minutes: int = 15,
             rate_limit_max: int = 3,
@@ -28,6 +29,7 @@ class MagicLinkService:
         self.otp_repo = otp_repo
         self.whitelist = whitelist
         self.email_client = email_client
+        self.token_service = token_service
         self.base_url = base_url
         self.token_expiry_minutes = token_expiry_minutes
         self.rate_limit_max = rate_limit_max

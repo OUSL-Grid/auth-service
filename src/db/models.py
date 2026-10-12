@@ -129,3 +129,4 @@ class OTPCode(Base):
 
     def __repr__(self):
         return f"Id: {self.id}, user_id: {self.user_id}, purpose: {self.purpose}"
+    
