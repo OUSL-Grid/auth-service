@@ -115,3 +115,68 @@ async def get_current_claims(
 
     request.state.claims = claims
     return claims
+
+import os
+
+from src.auth.google_service import GoogleAuthService
+from src.auth.oauth_google import GoogleOAuthClient, OAuthStateCodec
+from src.core.security import TokenCipher
+from src.db.oauth_repository import OAuthRepository
+
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"Environment variable {name} is required for Google sign-in")
+    return value
+
+
+@lru_cache
+def get_google_client() -> GoogleOAuthClient:
+    config = ConfigManager.get_instance()
+
+    return GoogleOAuthClient(
+        client_id=config.app_config.google_settings.client_id,
+        client_secret=_require_env("GOOGLE_CLIENT_SECRET"),
+        redirect_uri=config.app_config.google_settings.redirect_uri,
+        hosted_domain_hint=config.app_config.google_settings.hosted_domain_hint,
+    )
+
+
+@lru_cache
+def get_state_codec() -> OAuthStateCodec:
+    return OAuthStateCodec(_require_env("OAUTH_STATE_SECRET"))
+
+
+@lru_cache
+def get_token_cipher() -> TokenCipher | None:
+    key = os.environ.get("TOKEN_ENCRYPTION_KEY")
+    return TokenCipher(key) if key else None
+
+
+def get_cookie_secure() -> bool:
+    config = ConfigManager.get_instance()
+    return config.app_config.google_settings.cookie_secure
+
+
+
+def get_google_auth_service(
+    db: AsyncSession = Depends(get_db),
+    google: GoogleOAuthClient = Depends(get_google_client),
+    whitelist: DomainWhitelist = Depends(get_domain_whitelist),
+    token_service: TokenService = Depends(get_token_service),
+    cipher: TokenCipher | None = Depends(get_token_cipher),
+) -> GoogleAuthService:
+    return GoogleAuthService(
+        google=google,
+        user_repo=UserRepository(db),
+        oauth_repo=OAuthRepository(db),
+        otp_repo=OTPRepository(db),
+        whitelist=whitelist,
+        token_service=token_service,
+        cipher=cipher,
+    )
+
+def get_frontend_url() -> str:
+    config = ConfigManager.get_instance()
+    return config.app_config.app.frontend_url.rstrip("/")

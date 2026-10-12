@@ -1,6 +1,10 @@
 name: "auth-service"
 version: 1.0
 
+app:
+  base_url: "http://localhost:8000"
+  frontend_url: "http://localhost:5173"
+
 auth:
   allowed_domains:
     - "ousl.lk"
@@ -17,3 +21,9 @@ jwts:
   access_token_expiry_minutes: 15
   refresh_token_expiry_days: 7
   issuer: "auth-service"
+
+google_settings:
+  client_id: "38105106019-nq7qc1ekvpkicc85rgmfvo8u4piml3ug.apps.googleusercontent.com"
+  redirect_uri: "http://localhost:8000/auth/v1/google/callback"
+  hosted_domain_hint: "ousl.lk"   # optional: narrows Google's account chooser (UI hint only, enforced server-side anyway)
+  cookie_secure: false            # must be true behind HTTPS

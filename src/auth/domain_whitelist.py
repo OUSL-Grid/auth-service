@@ -37,5 +37,15 @@ class DomainWhitelist:
             )
         return domain
 
+    def validate_domain(self, domain: str) -> str:
+        """Same rules as validate(), for a bare domain such as Google's hd claim."""
+        domain = domain.lower().strip()
+        if not self.is_allowed(f"user@{domain}"):
+            raise DomainNotAllowedError(
+                f"Email domain '{domain}' is not authorized for this platform. "
+                f"Please use your university email address."
+            )
+        return domain
+
 
     

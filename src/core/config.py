@@ -22,6 +22,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+class App(BaseModel):
+    base_url: str
+    frontend_url: str
+
 class MagicLink(BaseModel):
     token_expiry_minutes: int
     rate_limit_max_per_window: int
@@ -39,11 +43,19 @@ class JWT(BaseModel):
     refresh_token_expiry_days: int
     issuer: str
 
+class GoogleSettings(BaseModel):
+    client_id: str
+    redirect_uri: str
+    hosted_domain_hint: str | None = None
+    cookie_secure: bool = False
+
 class AppConfig(BaseModel):
     name: str
     version: float
+    app: App
     auth: Auth
     jwts: JWT
+    google_settings: GoogleSettings
 
 
 def load_yaml_config_file(file: str = "config") -> AppConfig:
