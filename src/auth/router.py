@@ -4,8 +4,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, EmailStr
 
+from src.auth.claims import Claims
 from src.auth.service import MagicLinkService
-from src.core.dependencies import get_magic_link_service
+from src.core.dependencies import get_current_claims, get_magic_link_service
 from src.core.exceptions import AccountDisabledError, CodeConsumedError, CodeExpiredError, CodeNotFoundError, DomainNotAllowedError, RateLimitExceededError
 from src.auth.jwt import TokenPair
 
@@ -53,3 +54,7 @@ async def verify_magic_link(
         raise HTTPException(403, str(e))
     except AccountDisabledError as e:
         raise HTTPException(403, str(e)) 
+
+@router.get("/me", response_model=Claims)
+async def me(claims: Claims = Depends(get_current_claims)):
+    return claims
